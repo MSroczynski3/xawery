@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
 import { disconnectPrisma, checkDatabaseHealth } from './db';
 import { errorHandler } from './middleware/errorHandler';
+import { swaggerSpec } from './swagger';
 import authRoutes from './routes/auth';
 import testRoutes from './routes/test';
 
@@ -14,11 +16,42 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Routes
 app.use('/auth', authRoutes);
 app.use('/test', testRoutes);
 
-// Health endpoint
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                   description: Server uptime in seconds
+ *                 database:
+ *                   type: string
+ *                   enum: [connected, disconnected]
+ *       503:
+ *         description: Service unavailable (database issue)
+ */
 app.get('/health', async (_req: Request, res: Response) => {
   const dbHealthy = await checkDatabaseHealth();
 
@@ -42,6 +75,7 @@ app.use(errorHandler);
 const server = app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`📚 API docs: http://localhost:${PORT}/api-docs`);
 });
 
 // Graceful shutdown

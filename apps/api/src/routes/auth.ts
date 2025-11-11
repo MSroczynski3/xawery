@@ -22,7 +22,55 @@ const LoginSchema = z.object({
 });
 
 /**
- * POST /auth/register - Register a new user
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 example: securePassword123
+ *               role:
+ *                 type: string
+ *                 enum: [ADMIN, MANAGER, VIEWER]
+ *                 default: VIEWER
+ *                 example: VIEWER
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *                   description: JWT authentication token
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       409:
+ *         description: User already exists
  */
 router.post('/register', validateBody(RegisterSchema), async (req: Request, res: Response) => {
   const { email, password, role } = req.body;
@@ -66,7 +114,43 @@ router.post('/register', validateBody(RegisterSchema), async (req: Request, res:
 });
 
 /**
- * POST /auth/login - Login user
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: securePassword123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *                   description: JWT authentication token
+ *       401:
+ *         description: Invalid credentials
  */
 router.post('/login', validateBody(LoginSchema), async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -105,7 +189,27 @@ router.post('/login', validateBody(LoginSchema), async (req: Request, res: Respo
 });
 
 /**
- * GET /auth/me - Get current user info
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get current user info
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: User not found
  */
 router.get('/me', authenticate, async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({

@@ -21,6 +21,7 @@ Stack: Angular + Node.js + PostgreSQL + Prisma + LaunchDarkly.
 - Keep API routes thin, business logic in services
 - Use dependency injection patterns
 - Test files in `src/__tests__/` with `.test.ts` extension
+- API Documentation: Add Swagger JSDoc comments for all new endpoints
 
 ## Testing
 - Backend: Vitest for unit/integration tests
@@ -34,10 +35,11 @@ Stack: Angular + Node.js + PostgreSQL + Prisma + LaunchDarkly.
 ## Commit Workflow
 1. Make focused changes
 2. Write/update tests for changes
-3. Run `pnpm test` to ensure tests pass
-4. Run `pnpm format` to format code
-5. Use conventional commit messages (keep them concise - one or two sentences, no bullet lists)
-6. Update README if adding features
+3. Add Swagger JSDoc comments for new API endpoints
+4. Run `pnpm test` to ensure tests pass
+5. Run `pnpm format` to format code
+6. Use conventional commit messages (keep them concise - one or two sentences, no bullet lists)
+7. Update README if adding features
 
 ## Test Guidelines
 - Test happy paths and error cases
