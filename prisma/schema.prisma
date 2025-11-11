@@ -1,0 +1,87 @@
+// Prisma schema for Xawery e-commerce demo
+// Start with User and Product models, variants will be added in Milestone D
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  basePrice   Decimal  @db.Decimal(10, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations for variants (will be added in Milestone D)
+  options  ProductOption[]
+  variants ProductVariant[]
+
+  @@index([active, name])
+}
+
+// Product variant models (structure ready, will be used in Milestone D)
+
+model ProductOption {
+  id        String        @id @default(uuid())
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  name      String
+  values    OptionValue[]
+
+  @@unique([productId, name])
+}
+
+model OptionValue {
+  id       String        @id @default(uuid())
+  option   ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  optionId String
+  value    String
+
+  variantLinks VariantOptionValue[]
+
+  @@unique([optionId, value])
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  sku       String   @unique
+  price     Decimal  @db.Decimal(10, 2)
+  active    Boolean  @default(true)
+
+  optionLinks VariantOptionValue[]
+}
+
+model VariantOptionValue {
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  variantId String
+  value     OptionValue    @relation(fields: [valueId], references: [id], onDelete: Cascade)
+  valueId   String
+
+  @@id([variantId, valueId])
+}
+
