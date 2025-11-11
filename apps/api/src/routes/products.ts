@@ -5,7 +5,7 @@ import { validateBody, validateParams, validateQuery } from '../middleware/valid
 import { authenticate, requireRole } from '../middleware/auth';
 import { ApiError } from '../middleware/errorHandler';
 
-const router = Router();
+const router: Router = Router();
 const prisma = getPrismaClient();
 
 // Validation schemas
@@ -37,8 +37,8 @@ const UpdateProductSchema = z.object({
 const SearchQuerySchema = z.object({
   q: z.string().optional(),
   active: z.enum(['true', 'false']).optional(),
-  page: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
-  limit: z.string().regex(/^\d+$/).transform(Number).optional().default('10'),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(10),
 });
 
 const UuidParamSchema = z.object({
@@ -100,7 +100,7 @@ const UuidParamSchema = z.object({
  *                       type: integer
  */
 router.get('/', validateQuery(SearchQuerySchema), async (req: Request, res: Response) => {
-  const { q, active, page, limit } = req.query as {
+  const { q, active, page, limit } = req.query as unknown as {
     q?: string;
     active?: 'true' | 'false';
     page: number;
