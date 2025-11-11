@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { getPrismaClient, disconnectPrisma, checkDatabaseHealth } from './db';
+import { errorHandler } from './middleware/errorHandler';
+import testRoutes from './routes/test';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +15,9 @@ const prisma = getPrismaClient();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+
+// Routes
+app.use('/test', testRoutes);
 
 // Health endpoint
 app.get('/health', async (_req: Request, res: Response) => {
@@ -30,6 +35,9 @@ app.get('/health', async (_req: Request, res: Response) => {
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Not found' });
 });
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 // Start server
 const server = app.listen(PORT, () => {
