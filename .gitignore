@@ -48,3 +48,6 @@ prisma/migrations/**/*.sql.backup
 # Playwright
 /playwright/.auth/
 
+# Planning documents
+PLAN.md
+
