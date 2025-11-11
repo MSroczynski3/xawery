@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { disconnectPrisma, checkDatabaseHealth } from './db';
 import { errorHandler } from './middleware/errorHandler';
+import authRoutes from './routes/auth';
 import testRoutes from './routes/test';
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Routes
+app.use('/auth', authRoutes);
 app.use('/test', testRoutes);
 
 // Health endpoint
