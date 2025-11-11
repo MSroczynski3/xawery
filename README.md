@@ -49,11 +49,39 @@ Create a `.env` file in the root:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/demo
-JWT_SECRET=your-dev-secret
+JWT_SECRET=your-jwt-secret-here
 LD_SDK_KEY=your-launchdarkly-server-key
 LD_CLIENT_KEY=your-launchdarkly-client-key
 USE_FLAG_STUBS=false
 ```
+
+#### Generating JWT_SECRET
+
+**On Windows (PowerShell):**
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+[Convert]::ToBase64String($bytes)
+```
+
+**On macOS/Linux:**
+
+```bash
+openssl rand -base64 32
+```
+
+Copy the output and use it as your `JWT_SECRET` value in `.env`.
+
+#### Getting LaunchDarkly Keys
+
+1. Sign up for a free account at [launchdarkly.com](https://launchdarkly.com)
+2. Create a new project (e.g., "Xawery Demo")
+3. Go to **Account settings → Projects → [Your Project] → Environments**
+4. Select your **Development** environment
+5. Copy the keys:
+   - **SDK key** → use as `LD_SDK_KEY` (for server-side - keep secret!)
+   - **Client-side ID** → use as `LD_CLIENT_KEY` (for frontend - safe to expose)
 
 ### 3. Start PostgreSQL
 
