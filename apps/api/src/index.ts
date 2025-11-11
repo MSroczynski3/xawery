@@ -1,9 +1,13 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import { getPrismaClient, disconnectPrisma, checkDatabaseHealth } from './db';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize Prisma
+const prisma = getPrismaClient();
 
 // Middleware
 app.use(cors());
@@ -11,11 +15,14 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Health endpoint
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({
-    status: 'ok',
+app.get('/health', async (_req: Request, res: Response) => {
+  const dbHealthy = await checkDatabaseHealth();
+  
+  res.status(dbHealthy ? 200 : 503).json({
+    status: dbHealthy ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    database: dbHealthy ? 'connected' : 'disconnected',
   });
 });
 
@@ -31,19 +38,15 @@ const server = app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
+const shutdown = async (signal: string) => {
+  console.log(`\n${signal} signal received: closing HTTP server`);
+  server.close(async () => {
     console.log('HTTP server closed');
+    await disconnectPrisma();
     process.exit(0);
   });
-});
+};
 
-process.on('SIGINT', () => {
-  console.log('\nSIGINT signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
-  });
-});
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
