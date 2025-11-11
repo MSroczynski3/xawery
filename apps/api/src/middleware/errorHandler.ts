@@ -19,12 +19,7 @@ export class ApiError extends Error {
  * Global error handler middleware
  * Maps different error types to appropriate HTTP responses
  */
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) {
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
   console.error('Error:', err);
 
   // Custom API errors
@@ -73,10 +68,9 @@ export function errorHandler(
   // Default to 500 Internal Server Error
   return res.status(500).json({
     error: 'Internal server error',
-    ...(process.env.NODE_ENV !== 'production' && { 
+    ...(process.env.NODE_ENV !== 'production' && {
       details: err.message,
-      stack: err.stack 
+      stack: err.stack,
     }),
   });
 }
-

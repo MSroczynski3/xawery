@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
+import { ZodSchema } from 'zod';
 
 /**
  * Middleware to validate request body against a Zod schema
@@ -36,7 +36,7 @@ export function validateQuery(schema: ZodSchema) {
         })),
       });
     }
-    req.query = result.data as any;
+    req.query = result.data as typeof req.query;
     next();
   };
 }
@@ -56,8 +56,7 @@ export function validateParams(schema: ZodSchema) {
         })),
       });
     }
-    req.params = result.data as any;
+    req.params = result.data as typeof req.params;
     next();
   };
 }
-

@@ -1,15 +1,12 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import { getPrismaClient, disconnectPrisma, checkDatabaseHealth } from './db';
+import { disconnectPrisma, checkDatabaseHealth } from './db';
 import { errorHandler } from './middleware/errorHandler';
 import testRoutes from './routes/test';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Initialize Prisma
-const prisma = getPrismaClient();
 
 // Middleware
 app.use(cors());
@@ -22,7 +19,7 @@ app.use('/test', testRoutes);
 // Health endpoint
 app.get('/health', async (_req: Request, res: Response) => {
   const dbHealthy = await checkDatabaseHealth();
-  
+
   res.status(dbHealthy ? 200 : 503).json({
     status: dbHealthy ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
@@ -57,4 +54,3 @@ const shutdown = async (signal: string) => {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
-

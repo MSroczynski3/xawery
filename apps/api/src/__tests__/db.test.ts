@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { getPrismaClient, checkDatabaseHealth } from '../db';
 
 describe('Database Utilities', () => {
@@ -27,16 +27,15 @@ describe('Database Utilities', () => {
       // Mock the Prisma client to simulate failure
       const client = getPrismaClient();
       const originalQueryRaw = client.$queryRaw;
-      
+
       // Temporarily replace with failing mock
       client.$queryRaw = vi.fn().mockRejectedValue(new Error('Connection failed'));
-      
+
       const isHealthy = await checkDatabaseHealth();
       expect(isHealthy).toBe(false);
-      
+
       // Restore original
       client.$queryRaw = originalQueryRaw;
     });
   });
 });
-

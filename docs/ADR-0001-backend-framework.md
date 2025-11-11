@@ -7,6 +7,7 @@
 ## Context
 
 We need to choose a Node.js backend framework for our e-commerce demo application. The application requires:
+
 - RESTful API endpoints
 - JWT authentication with role-based access control
 - Integration with LaunchDarkly SDK
@@ -32,12 +33,14 @@ We will use **Express** as our backend framework.
 ### What we considered about NestJS
 
 **Advantages** (not chosen):
+
 - Built-in dependency injection
 - Modular architecture out-of-the-box
 - TypeScript decorators for routing and validation
 - More enterprise-ready patterns
 
 **Why we didn't choose it**:
+
 - Steeper learning curve
 - More boilerplate for a demo project
 - Overkill for our scope
@@ -46,17 +49,20 @@ We will use **Express** as our backend framework.
 ## Consequences
 
 ### Positive
+
 - Faster initial development
 - More control over architecture
 - Easier to understand for learners
 - Lighter bundle size
 
 ### Negative
+
 - Need to implement our own DI pattern (simple factories)
 - Manual setup for routing structure
 - Less built-in type safety for routes
 
 ### Mitigation
+
 - Use clear folder structure (`routes/`, `services/`, `middleware/`)
 - Implement simple dependency injection via factory functions
 - Use Zod for request validation
@@ -75,6 +81,6 @@ apps/api/src/
 ```
 
 ## References
+
 - [Express Documentation](https://expressjs.com/)
 - [NestJS Documentation](https://nestjs.com/) (for future reference)
-

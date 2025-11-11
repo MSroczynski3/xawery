@@ -26,13 +26,11 @@ describe('Validation Middleware', () => {
         res.json({ success: true, data: req.body });
       });
 
-      const response = await request(app)
-        .post('/test')
-        .send({
-          email: 'test@example.com',
-          age: 25,
-          name: 'John Doe',
-        });
+      const response = await request(app).post('/test').send({
+        email: 'test@example.com',
+        age: 25,
+        name: 'John Doe',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -45,13 +43,11 @@ describe('Validation Middleware', () => {
         res.json({ success: true });
       });
 
-      const response = await request(app)
-        .post('/test')
-        .send({
-          email: 'not-an-email',
-          age: 25,
-          name: 'John',
-        });
+      const response = await request(app).post('/test').send({
+        email: 'not-an-email',
+        age: 25,
+        name: 'John',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation failed');
@@ -66,19 +62,17 @@ describe('Validation Middleware', () => {
         res.json({ success: true });
       });
 
-      const response = await request(app)
-        .post('/test')
-        .send({
-          email: 'bad-email',
-          age: 150,
-          name: 'J',
-        });
+      const response = await request(app).post('/test').send({
+        email: 'bad-email',
+        age: 150,
+        name: 'J',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation failed');
       expect(response.body.details).toHaveLength(3);
-      
-      const paths = response.body.details.map((d: any) => d.path);
+
+      const paths = response.body.details.map((d: { path: string }) => d.path);
       expect(paths).toContain('email');
       expect(paths).toContain('age');
       expect(paths).toContain('name');
@@ -90,18 +84,16 @@ describe('Validation Middleware', () => {
         res.json({ success: true });
       });
 
-      const response = await request(app)
-        .post('/test')
-        .send({
-          email: 'test@example.com',
-          // missing age and name
-        });
+      const response = await request(app).post('/test').send({
+        email: 'test@example.com',
+        // missing age and name
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Validation failed');
       expect(response.body.details).toHaveLength(2);
-      
-      const paths = response.body.details.map((d: any) => d.path);
+
+      const paths = response.body.details.map((d: { path: string }) => d.path);
       expect(paths).toContain('age');
       expect(paths).toContain('name');
     });
@@ -174,7 +166,7 @@ describe('Error Handler Middleware', () => {
   it('should handle custom API errors', async () => {
     const app = createTestApp();
     const { ApiError } = await import('../middleware/errorHandler');
-    
+
     app.get('/test', () => {
       throw new ApiError(418, "I'm a teapot", { reason: 'Testing' });
     });
@@ -189,7 +181,7 @@ describe('Error Handler Middleware', () => {
 
   it('should handle generic errors', async () => {
     const app = createTestApp();
-    
+
     app.get('/test', () => {
       throw new Error('Something went wrong');
     });
@@ -201,4 +193,3 @@ describe('Error Handler Middleware', () => {
     expect(response.body.error).toBe('Internal server error');
   });
 });
-

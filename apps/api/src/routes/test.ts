@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { validateBody } from '../middleware/validate';
 import { ApiError } from '../middleware/errorHandler';
 
-const router = Router();
+const router: Router = Router();
 
 // Schema for testing validation
 const TestSchema = z.object({
@@ -26,4 +26,3 @@ router.get('/error', (_req: Request, _res: Response) => {
 });
 
 export default router;
-
