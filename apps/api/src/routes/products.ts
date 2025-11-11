@@ -4,6 +4,7 @@ import { getPrismaClient } from '../db';
 import { validateBody, validateParams, validateQuery } from '../middleware/validate';
 import { authenticate, requireRole } from '../middleware/auth';
 import { ApiError } from '../middleware/errorHandler';
+import { asyncHandler } from '../utils/asyncHandler';
 
 const router: Router = Router();
 const prisma = getPrismaClient();
@@ -99,72 +100,76 @@ const UuidParamSchema = z.object({
  *                     totalPages:
  *                       type: integer
  */
-router.get('/', validateQuery(SearchQuerySchema), async (req: Request, res: Response) => {
-  const { q, active, page, limit } = req.query as unknown as {
-    q?: string;
-    active?: 'true' | 'false';
-    page: number;
-    limit: number;
-  };
+router.get(
+  '/',
+  validateQuery(SearchQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { q, active, page, limit } = req.query as unknown as {
+      q?: string;
+      active?: 'true' | 'false';
+      page: number;
+      limit: number;
+    };
 
-  const where: {
-    active?: boolean;
-    OR?: Array<
-      | { name: { contains: string; mode: 'insensitive' } }
-      | { description: { contains: string; mode: 'insensitive' } }
-    >;
-  } = {};
+    const where: {
+      active?: boolean;
+      OR?: Array<
+        | { name: { contains: string; mode: 'insensitive' } }
+        | { description: { contains: string; mode: 'insensitive' } }
+      >;
+    } = {};
 
-  // Filter by active status
-  if (active !== undefined) {
-    where.active = active === 'true';
-  }
+    // Filter by active status
+    if (active !== undefined) {
+      where.active = active === 'true';
+    }
 
-  // Search by name or description
-  if (q) {
-    where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { description: { contains: q, mode: 'insensitive' } },
-    ];
-  }
+    // Search by name or description
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } },
+      ];
+    }
 
-  const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: {
-        createdAt: 'desc',
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          basePrice: true,
+          active: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    res.json({
+      products: products.map((p) => ({
+        ...p,
+        basePrice: Number(p.basePrice),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        basePrice: true,
-        active: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.product.count({ where }),
-  ]);
-
-  res.json({
-    products: products.map((p) => ({
-      ...p,
-      basePrice: Number(p.basePrice),
-    })),
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  });
-});
+    });
+  })
+);
 
 /**
  * @swagger
@@ -193,34 +198,38 @@ router.get('/', validateQuery(SearchQuerySchema), async (req: Request, res: Resp
  *       404:
  *         description: Product not found
  */
-router.get('/:id', validateParams(UuidParamSchema), async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.get(
+  '/:id',
+  validateParams(UuidParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  const product = await prisma.product.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      basePrice: true,
-      active: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        basePrice: true,
+        active: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  if (!product) {
-    throw new ApiError(404, 'Product not found');
-  }
+    if (!product) {
+      throw new ApiError(404, 'Product not found');
+    }
 
-  res.json({
-    product: {
-      ...product,
-      basePrice: Number(product.basePrice),
-    },
-  });
-});
+    res.json({
+      product: {
+        ...product,
+        basePrice: Number(product.basePrice),
+      },
+    });
+  })
+);
 
 /**
  * @swagger
@@ -277,7 +286,7 @@ router.post(
   authenticate,
   requireRole('ADMIN', 'MANAGER'),
   validateBody(CreateProductSchema),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { name, slug, description, basePrice, active } = req.body;
 
     const product = await prisma.product.create({
@@ -306,7 +315,7 @@ router.post(
         basePrice: Number(product.basePrice),
       },
     });
-  }
+  })
 );
 
 /**
@@ -362,7 +371,7 @@ router.put(
   requireRole('ADMIN', 'MANAGER'),
   validateParams(UuidParamSchema),
   validateBody(UpdateProductSchema),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
@@ -407,7 +416,7 @@ router.put(
         basePrice: Number(product.basePrice),
       },
     });
-  }
+  })
 );
 
 /**
@@ -441,7 +450,7 @@ router.delete(
   authenticate,
   requireRole('ADMIN'),
   validateParams(UuidParamSchema),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const product = await prisma.product.findUnique({
@@ -457,7 +466,7 @@ router.delete(
     });
 
     res.json({ message: 'Product deleted successfully' });
-  }
+  })
 );
 
 export default router;
