@@ -20,6 +20,11 @@ app.use(morgan('dev'));
 // API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// OpenAPI JSON spec
+app.get('/api-docs.json', (_req: Request, res: Response) => {
+  res.json(swaggerSpec);
+});
+
 // Routes
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
