@@ -95,6 +95,10 @@ const options: swaggerJsdoc.Options = {
         description: 'User authentication and authorization',
       },
       {
+        name: 'Users',
+        description: 'User management (Admin only)',
+      },
+      {
         name: 'Health',
         description: 'API health checks',
       },

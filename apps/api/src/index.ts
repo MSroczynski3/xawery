@@ -6,6 +6,7 @@ import { disconnectPrisma, checkDatabaseHealth } from './db';
 import { errorHandler } from './middleware/errorHandler';
 import { swaggerSpec } from './swagger';
 import authRoutes from './routes/auth';
+import usersRoutes from './routes/users';
 import testRoutes from './routes/test';
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/users', usersRoutes);
 app.use('/test', testRoutes);
 
 /**
