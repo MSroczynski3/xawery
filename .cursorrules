@@ -1,0 +1,34 @@
+# Xawery Project Rules
+
+## Project Context
+This is an e-commerce demo showcasing parametrized products with feature flags (LaunchDarkly).
+Stack: Angular + Node.js + PostgreSQL + Prisma + LaunchDarkly.
+
+## Code Style
+- Use TypeScript for all code
+- Follow ESLint and Prettier configurations
+- Use conventional commits (feat:, fix:, chore:, docs:, test:)
+- Keep commits small and focused
+
+## Architecture Principles
+- Feature flags: Server-side for security, client-side for UX only
+- Auth: JWT with role-based access control (ADMIN, MANAGER, VIEWER)
+- API: RESTful with Zod validation
+- Database: Prisma ORM with PostgreSQL
+
+## File Organization
+- Shared types/DTOs in `packages/shared`
+- Keep API routes thin, business logic in services
+- Use dependency injection patterns
+
+## Testing
+- E2E tests with Playwright
+- Use flag stubs for deterministic testing
+- Test both flag ON and OFF scenarios
+
+## Commit Workflow
+1. Make focused changes
+2. Run `pnpm format` before committing
+3. Use conventional commit messages
+4. Update README if adding features
+
