@@ -20,15 +20,28 @@ Stack: Angular + Node.js + PostgreSQL + Prisma + LaunchDarkly.
 - Shared types/DTOs in `packages/shared`
 - Keep API routes thin, business logic in services
 - Use dependency injection patterns
+- Test files in `src/__tests__/` with `.test.ts` extension
 
 ## Testing
-- E2E tests with Playwright
+- Backend: Vitest for unit/integration tests
+- Frontend: Vitest + Testing Library (when implemented)
+- E2E: Playwright
 - Use flag stubs for deterministic testing
 - Test both flag ON and OFF scenarios
+- Write tests for each new feature before committing
+- Run `pnpm test` to verify all tests pass
 
 ## Commit Workflow
 1. Make focused changes
-2. Run `pnpm format` before committing
-3. Use conventional commit messages
-4. Update README if adding features
+2. Write/update tests for changes
+3. Run `pnpm test` to ensure tests pass
+4. Run `pnpm format` to format code
+5. Use conventional commit messages
+6. Update README if adding features
+
+## Test Guidelines
+- Test happy paths and error cases
+- Mock external dependencies (database, APIs) when needed
+- Keep tests focused and readable
+- Use descriptive test names: "should do X when Y"
 
