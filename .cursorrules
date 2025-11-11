@@ -36,7 +36,7 @@ Stack: Angular + Node.js + PostgreSQL + Prisma + LaunchDarkly.
 2. Write/update tests for changes
 3. Run `pnpm test` to ensure tests pass
 4. Run `pnpm format` to format code
-5. Use conventional commit messages
+5. Use conventional commit messages (keep them concise - one or two sentences, no bullet lists)
 6. Update README if adding features
 
 ## Test Guidelines
