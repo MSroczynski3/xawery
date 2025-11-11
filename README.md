@@ -148,6 +148,14 @@ The API will be available at:
 - `PUT /users/:id` - Update user
 - `DELETE /users/:id` - Delete user
 
+### Products
+
+- `GET /products` - Search and list products (public, with pagination)
+- `GET /products/:id` - Get product by ID (public)
+- `POST /products` - Create product (Manager/Admin only)
+- `PUT /products/:id` - Update product (Manager/Admin only)
+- `DELETE /products/:id` - Delete product (Admin only)
+
 ### Health
 
 - `GET /health` - API health check with database status

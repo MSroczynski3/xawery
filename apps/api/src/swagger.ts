@@ -87,6 +87,40 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        Product: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+            },
+            name: {
+              type: 'string',
+            },
+            slug: {
+              type: 'string',
+            },
+            description: {
+              type: 'string',
+              nullable: true,
+            },
+            basePrice: {
+              type: 'number',
+              format: 'decimal',
+            },
+            active: {
+              type: 'boolean',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+          },
+        },
       },
     },
     tags: [
@@ -97,6 +131,10 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Users',
         description: 'User management (Admin only)',
+      },
+      {
+        name: 'Products',
+        description: 'Product catalog management',
       },
       {
         name: 'Health',

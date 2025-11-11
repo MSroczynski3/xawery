@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { swaggerSpec } from './swagger';
 import authRoutes from './routes/auth';
 import usersRoutes from './routes/users';
+import productsRoutes from './routes/products';
 import testRoutes from './routes/test';
 
 const app = express();
@@ -28,6 +29,7 @@ app.get('/api-docs.json', (_req: Request, res: Response) => {
 // Routes
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
+app.use('/products', productsRoutes);
 app.use('/test', testRoutes);
 
 /**
