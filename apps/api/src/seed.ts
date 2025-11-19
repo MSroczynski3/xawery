@@ -1,6 +1,5 @@
 import { getPrismaClient, disconnectPrisma } from './db';
 import { hashPassword } from './utils/auth';
-import { Role } from '@prisma/client';
 
 const prisma = getPrismaClient();
 
@@ -39,7 +38,7 @@ async function main() {
     data: {
       email: 'admin@xawery.com',
       password: adminPassword,
-      role: Role.ADMIN,
+      role: 'ADMIN',
     },
   });
 
@@ -47,7 +46,7 @@ async function main() {
     data: {
       email: 'manager@xawery.com',
       password: managerPassword,
-      role: Role.MANAGER,
+      role: 'MANAGER',
     },
   });
 
@@ -55,7 +54,7 @@ async function main() {
     data: {
       email: 'viewer@xawery.com',
       password: viewerPassword,
-      role: Role.VIEWER,
+      role: 'VIEWER',
     },
   });
 
