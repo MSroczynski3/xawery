@@ -109,6 +109,7 @@ The API will be available at:
 - **API Documentation**: http://localhost:3000/api-docs
 - **OpenAPI JSON**: http://localhost:3000/api-docs.json
 - **Health Check**: http://localhost:3000/health
+- **Prisma Studio**: http://localhost:5555
 
 ## Available Scripts
 
@@ -130,7 +131,7 @@ The API will be available at:
 
 - `pnpm db:migrate` - Run database migrations
 - `pnpm db:seed` - Seed database with sample data
-- `pnpm db:studio` - Open Prisma Studio
+- `pnpm db:studio` - Open Prisma Studio (http://localhost:5555)
 
 ## API Endpoints
 
