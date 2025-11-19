@@ -3,10 +3,11 @@ import { z } from 'zod';
 import { getPrismaClient } from '../db';
 import { validateBody, validateParams } from '../middleware/validate';
 import { authenticate, requireRole } from '../middleware/auth';
+import { asyncHandler } from '../utils/asyncHandler';
 import { hashPassword } from '../utils/auth';
 import { ApiError } from '../middleware/errorHandler';
 
-const router = Router();
+const router: Router = Router();
 const prisma = getPrismaClient();
 
 // All user routes require authentication and ADMIN role
@@ -55,7 +56,7 @@ const UuidParamSchema = z.object({
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/', async (_req: Request, res: Response) => {
+router.get('/', asyncHandler(async (_req: Request, res: Response) => {
   const users = await prisma.user.findMany({
     select: {
       id: true,
@@ -70,7 +71,7 @@ router.get('/', async (_req: Request, res: Response) => {
   });
 
   res.json({ users });
-});
+}));
 
 /**
  * @swagger
@@ -105,7 +106,7 @@ router.get('/', async (_req: Request, res: Response) => {
  *       404:
  *         description: User not found
  */
-router.get('/:id', validateParams(UuidParamSchema), async (req: Request, res: Response) => {
+router.get('/:id', validateParams(UuidParamSchema), asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const user = await prisma.user.findUnique({
@@ -124,7 +125,7 @@ router.get('/:id', validateParams(UuidParamSchema), async (req: Request, res: Re
   }
 
   res.json({ user });
-});
+}));
 
 /**
  * @swagger
@@ -176,7 +177,7 @@ router.get('/:id', validateParams(UuidParamSchema), async (req: Request, res: Re
  *       409:
  *         description: User already exists
  */
-router.post('/', validateBody(CreateUserSchema), async (req: Request, res: Response) => {
+router.post('/', validateBody(CreateUserSchema), asyncHandler(async (req: Request, res: Response) => {
   const { email, password, role } = req.body;
 
   // Check if user already exists
@@ -208,7 +209,7 @@ router.post('/', validateBody(CreateUserSchema), async (req: Request, res: Respo
   });
 
   res.status(201).json({ user });
-});
+}));
 
 /**
  * @swagger
@@ -270,7 +271,7 @@ router.put(
   '/:id',
   validateParams(UuidParamSchema),
   validateBody(UpdateUserSchema),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { email, password, role } = req.body;
 
@@ -320,7 +321,7 @@ router.put(
 
     res.json({ user });
   }
-);
+));
 
 /**
  * @swagger
@@ -356,7 +357,7 @@ router.put(
  *       404:
  *         description: User not found
  */
-router.delete('/:id', validateParams(UuidParamSchema), async (req: Request, res: Response) => {
+router.delete('/:id', validateParams(UuidParamSchema), asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
   // Check if user exists
@@ -374,6 +375,6 @@ router.delete('/:id', validateParams(UuidParamSchema), async (req: Request, res:
   });
 
   res.json({ message: 'User deleted successfully' });
-});
+}));
 
 export default router;

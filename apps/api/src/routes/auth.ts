@@ -3,10 +3,11 @@ import { z } from 'zod';
 import { getPrismaClient } from '../db';
 import { validateBody } from '../middleware/validate';
 import { authenticate } from '../middleware/auth';
+import { asyncHandler } from '../utils/asyncHandler';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { ApiError } from '../middleware/errorHandler';
 
-const router = Router();
+const router: Router = Router();
 const prisma = getPrismaClient();
 
 // Validation schemas
@@ -72,7 +73,7 @@ const LoginSchema = z.object({
  *       409:
  *         description: User already exists
  */
-router.post('/register', validateBody(RegisterSchema), async (req: Request, res: Response) => {
+router.post('/register', validateBody(RegisterSchema), asyncHandler(async (req: Request, res: Response) => {
   const { email, password, role } = req.body;
 
   // Check if user already exists
@@ -111,7 +112,7 @@ router.post('/register', validateBody(RegisterSchema), async (req: Request, res:
     },
     token,
   });
-});
+}));
 
 /**
  * @swagger
@@ -152,7 +153,7 @@ router.post('/register', validateBody(RegisterSchema), async (req: Request, res:
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', validateBody(LoginSchema), async (req: Request, res: Response) => {
+router.post('/login', validateBody(LoginSchema), asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   // Find user
@@ -186,7 +187,7 @@ router.post('/login', validateBody(LoginSchema), async (req: Request, res: Respo
     },
     token,
   });
-});
+}));
 
 /**
  * @swagger
@@ -211,7 +212,7 @@ router.post('/login', validateBody(LoginSchema), async (req: Request, res: Respo
  *       404:
  *         description: User not found
  */
-router.get('/me', authenticate, async (req: Request, res: Response) => {
+router.get('/me', authenticate, asyncHandler(async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.userId },
     select: {
@@ -227,6 +228,6 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
   }
 
   res.json({ user });
-});
+}));
 
 export default router;
