@@ -26,7 +26,7 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
       error: err.message,
-      ...(err.details && { details: err.details }),
+      ...(err.details ? { details: err.details } : {}),
     });
   }
 
