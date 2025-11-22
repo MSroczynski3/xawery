@@ -172,8 +172,6 @@ Visit [http://localhost:3000/api-docs](http://localhost:3000/api-docs) for inter
 5. Run `pnpm format` to format code
 6. Commit with conventional commit messages
 
-See [PLAN.md](./PLAN.md) for the detailed implementation plan and architecture.
-
 ## License
 
 MIT
