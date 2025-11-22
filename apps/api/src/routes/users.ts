@@ -56,22 +56,25 @@ const UuidParamSchema = z.object({
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/', asyncHandler(async (_req: Request, res: Response) => {
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+router.get(
+  '/',
+  asyncHandler(async (_req: Request, res: Response) => {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-  res.json({ users });
-}));
+    res.json({ users });
+  })
+);
 
 /**
  * @swagger
@@ -106,26 +109,30 @@ router.get('/', asyncHandler(async (_req: Request, res: Response) => {
  *       404:
  *         description: User not found
  */
-router.get('/:id', validateParams(UuidParamSchema), asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.get(
+  '/:id',
+  validateParams(UuidParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
 
-  res.json({ user });
-}));
+    res.json({ user });
+  })
+);
 
 /**
  * @swagger
@@ -177,39 +184,43 @@ router.get('/:id', validateParams(UuidParamSchema), asyncHandler(async (req: Req
  *       409:
  *         description: User already exists
  */
-router.post('/', validateBody(CreateUserSchema), asyncHandler(async (req: Request, res: Response) => {
-  const { email, password, role } = req.body;
+router.post(
+  '/',
+  validateBody(CreateUserSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email, password, role } = req.body;
 
-  // Check if user already exists
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  if (existingUser) {
-    throw new ApiError(409, 'User already exists');
-  }
+    if (existingUser) {
+      throw new ApiError(409, 'User already exists');
+    }
 
-  // Hash password
-  const hashedPassword = await hashPassword(password);
+    // Hash password
+    const hashedPassword = await hashPassword(password);
 
-  // Create user
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      role,
-    },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  res.status(201).json({ user });
-}));
+    res.status(201).json({ user });
+  })
+);
 
 /**
  * @swagger
@@ -320,8 +331,8 @@ router.put(
     });
 
     res.json({ user });
-  }
-));
+  })
+);
 
 /**
  * @swagger
@@ -357,24 +368,28 @@ router.put(
  *       404:
  *         description: User not found
  */
-router.delete('/:id', validateParams(UuidParamSchema), asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+router.delete(
+  '/:id',
+  validateParams(UuidParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  // Check if user exists
-  const user = await prisma.user.findUnique({
-    where: { id },
-  });
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
 
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
 
-  // Delete user
-  await prisma.user.delete({
-    where: { id },
-  });
+    // Delete user
+    await prisma.user.delete({
+      where: { id },
+    });
 
-  res.json({ message: 'User deleted successfully' });
-}));
+    res.json({ message: 'User deleted successfully' });
+  })
+);
 
 export default router;

@@ -76,7 +76,7 @@ describe('Features Routes', () => {
       vi.mocked(getAllFlags).mockRejectedValue(new Error('LaunchDarkly error'));
 
       const app = createTestApp();
-      
+
       // Note: The real getAllFlags implementation catches errors and returns {}
       // But if it throws, asyncHandler will catch it and return 500
       // This test verifies error propagation through asyncHandler
@@ -108,4 +108,3 @@ describe('Features Routes', () => {
     });
   });
 });
-

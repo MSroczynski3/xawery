@@ -111,4 +111,3 @@ main()
   .finally(async () => {
     await disconnectPrisma();
   });
-

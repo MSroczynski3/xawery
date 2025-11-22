@@ -26,15 +26,10 @@ export function requireFlag(flagKey: string) {
     const isEnabled = await evaluateFlag(flagKey, context, false);
 
     if (!isEnabled) {
-      throw new ApiError(
-        403,
-        `Feature '${flagKey}' is not enabled`,
-        'FEATURE_DISABLED'
-      );
+      throw new ApiError(403, `Feature '${flagKey}' is not enabled`, 'FEATURE_DISABLED');
     }
 
     // Flag is enabled, continue to next middleware
     next();
   };
 }
-

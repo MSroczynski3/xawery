@@ -102,7 +102,7 @@ export async function getAllFlags(
     // Convert LD flags state to simple key-value map
     // allValues() returns a Map or Map-like object
     const allValues = flags.allValues();
-    
+
     // Handle both Map and plain object cases
     if (allValues instanceof Map) {
       for (const [key, value] of allValues.entries()) {
@@ -137,4 +137,3 @@ export async function closeLaunchDarkly(): Promise<void> {
     console.log('📊 LaunchDarkly client closed');
   }
 }
-

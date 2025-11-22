@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { disconnectPrisma, checkDatabaseHealth } from './db';
@@ -16,6 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(helmet()); // Security headers including disabling X-Powered-By
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));

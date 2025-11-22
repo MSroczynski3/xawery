@@ -50,4 +50,3 @@ In your e2e tests, you can:
 
 - `FLAG_STUB_PORT` - Port to run the server on (default: 4000)
 - `FLAG_OVERRIDES` - JSON string of flag overrides
-

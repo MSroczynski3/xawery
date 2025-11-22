@@ -57,7 +57,9 @@ describe('Product Routes', () => {
     } catch (error) {
       // Handle race conditions or other creation errors
       console.error('Failed to create test product:', error);
-      throw new Error(`Test setup failed: Could not create test product. ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Test setup failed: Could not create test product. ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   });
 
