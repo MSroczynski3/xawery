@@ -4,10 +4,12 @@ import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { disconnectPrisma, checkDatabaseHealth } from './db';
 import { errorHandler } from './middleware/errorHandler';
+import { initializeLaunchDarkly, closeLaunchDarkly } from './utils/launchdarkly';
 import { swaggerSpec } from './swagger';
 import authRoutes from './routes/auth';
 import usersRoutes from './routes/users';
 import productsRoutes from './routes/products';
+import featuresRoutes from './routes/features';
 import testRoutes from './routes/test';
 
 const app = express();
@@ -30,6 +32,7 @@ app.get('/api-docs.json', (_req: Request, res: Response) => {
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/products', productsRoutes);
+app.use('/features', featuresRoutes);
 app.use('/test', testRoutes);
 
 /**
@@ -80,6 +83,9 @@ app.use((_req: Request, res: Response) => {
 // Global error handler (must be last)
 app.use(errorHandler);
 
+// Initialize LaunchDarkly
+initializeLaunchDarkly();
+
 // Start server
 const server = app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
@@ -92,6 +98,7 @@ const shutdown = async (signal: string) => {
   console.log(`\n${signal} signal received: closing HTTP server`);
   server.close(async () => {
     console.log('HTTP server closed');
+    await closeLaunchDarkly();
     await disconnectPrisma();
     process.exit(0);
   });
