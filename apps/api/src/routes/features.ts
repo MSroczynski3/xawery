@@ -3,7 +3,7 @@ import { authenticate } from '../middleware/auth';
 import { buildLDContext, getAllFlags } from '../utils/launchdarkly';
 import { asyncHandler } from '../utils/asyncHandler';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @swagger
@@ -33,12 +33,9 @@ router.get(
   '/',
   authenticate,
   asyncHandler(async (req: Request, res: Response) => {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
     // Build LaunchDarkly context from authenticated user
-    const context = buildLDContext(req.user);
+    // req.user is guaranteed to exist by authenticate middleware
+    const context = buildLDContext(req.user!);
 
     // Get all flags for this user
     const flags = await getAllFlags(context);

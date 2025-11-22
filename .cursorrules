@@ -9,6 +9,7 @@ Stack: Angular + Node.js + PostgreSQL + Prisma + LaunchDarkly.
 - Follow ESLint and Prettier configurations
 - Use conventional commits (feat:, fix:, chore:, docs:, test:)
 - Keep commits small and focused
+- Always explicitly type Express routers: `const router: Router = Router();` (required for TypeScript portability)
 
 ## Architecture Principles
 - Feature flags: Server-side for security, client-side for UX only
