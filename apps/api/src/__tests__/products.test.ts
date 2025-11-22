@@ -157,9 +157,11 @@ describe('Product Routes', () => {
     it('should create a new product', async () => {
       const app = createTestApp();
 
+      // Use unique slug to avoid conflicts from previous test runs
+      const uniqueSlug = `test-new-product-${Date.now()}`;
       const newProduct = {
         name: 'New Test Product',
-        slug: 'test-new-product',
+        slug: uniqueSlug,
         description: 'A brand new test product',
         basePrice: 149.99,
         active: true,
