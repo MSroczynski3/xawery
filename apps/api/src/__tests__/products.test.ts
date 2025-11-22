@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import productsRouter from '../routes/products';
@@ -37,23 +37,42 @@ vi.mock('../middleware/auth', () => ({
 
 describe('Product Routes', () => {
   let testProduct: { id: string; name: string; slug: string };
+  let testProductSlug: string;
 
   beforeEach(async () => {
-    // Clean up test data
-    await prisma.product.deleteMany({
-      where: { slug: { startsWith: 'test-' } },
-    });
+    // Generate unique slug to prevent race conditions in parallel test execution
+    testProductSlug = `test-product-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-    // Create a test product
-    testProduct = await prisma.product.create({
-      data: {
-        name: 'Test Product',
-        slug: 'test-product',
-        description: 'A test product',
-        basePrice: 99.99,
-        active: true,
-      },
-    });
+    try {
+      // Create a test product with unique slug
+      testProduct = await prisma.product.create({
+        data: {
+          name: 'Test Product',
+          slug: testProductSlug,
+          description: 'A test product',
+          basePrice: 99.99,
+          active: true,
+        },
+      });
+    } catch (error) {
+      // Handle race conditions or other creation errors
+      console.error('Failed to create test product:', error);
+      throw new Error(`Test setup failed: Could not create test product. ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  });
+
+  afterEach(async () => {
+    // Clean up test product after each test
+    if (testProduct?.id) {
+      try {
+        await prisma.product.delete({
+          where: { id: testProduct.id },
+        });
+      } catch (error) {
+        // Ignore errors if product was already deleted
+        console.warn('Failed to delete test product in cleanup:', error);
+      }
+    }
   });
 
   describe('GET /products', () => {
@@ -173,7 +192,7 @@ describe('Product Routes', () => {
 
       const response = await request(app).post('/products').send({
         name: 'Duplicate Product',
-        slug: 'test-product', // Already exists
+        slug: testProduct.slug, // Already exists from beforeEach
         basePrice: 99.99,
       });
 
