@@ -87,28 +87,24 @@ describe('Features Routes', () => {
     });
 
     it('should only return boolean flags', async () => {
-      // Mock that LaunchDarkly might return non-boolean values, but our function filters them
+      // getAllFlags filters non-boolean values internally
+      // This test verifies the route returns only boolean flags
       const mockFlags = {
         'product-variants': true,
-        'some-number-flag': 42, // Should be filtered out
-        'some-string-flag': 'enabled', // Should be filtered out
+        'new-checkout': false,
       };
 
-      vi.mocked(getAllFlags).mockResolvedValue({
-        'product-variants': true,
-        // The function should filter out non-boolean values
-      });
+      vi.mocked(getAllFlags).mockResolvedValue(mockFlags);
 
       const app = createTestApp();
       const response = await request(app).get('/features');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        'product-variants': true,
+      expect(response.body).toEqual(mockFlags);
+      // Verify all returned values are booleans
+      Object.values(response.body).forEach((value) => {
+        expect(typeof value).toBe('boolean');
       });
-      // Verify non-boolean flags are not included
-      expect(response.body['some-number-flag']).toBeUndefined();
-      expect(response.body['some-string-flag']).toBeUndefined();
     });
   });
 });
