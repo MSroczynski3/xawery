@@ -36,7 +36,10 @@ const UpdateProductSchema = z.object({
 });
 
 const SearchQuerySchema = z.object({
-  q: z.string().optional(),
+  q: z
+    .string()
+    .optional()
+    .transform((val) => (val === '' || val === undefined ? undefined : val)),
   active: z.enum(['true', 'false']).optional(),
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(10),

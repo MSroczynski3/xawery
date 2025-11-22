@@ -89,6 +89,33 @@ describe('Product Routes', () => {
       expect(response.body.pagination).toBeDefined();
       expect(response.body.pagination.page).toBe(1);
       expect(response.body.pagination.limit).toBe(10);
+      // Verify products are actually returned
+      expect(response.body.products.length).toBeGreaterThan(0);
+      expect(response.body.pagination.total).toBeGreaterThan(0);
+    });
+
+    it('should return all products when no filters are provided', async () => {
+      const app = createTestApp();
+
+      const response = await request(app).get('/products');
+
+      expect(response.status).toBe(200);
+      expect(response.body.products.length).toBeGreaterThan(0);
+      // Should include the test product created in beforeEach
+      const productIds = response.body.products.map((p: { id: string }) => p.id);
+      expect(productIds).toContain(testProduct.id);
+    });
+
+    it('should handle empty q parameter and return all products', async () => {
+      const app = createTestApp();
+
+      const response = await request(app).get('/products?q=');
+
+      expect(response.status).toBe(200);
+      expect(response.body.products.length).toBeGreaterThan(0);
+      // Empty q should be treated as no filter
+      const productIds = response.body.products.map((p: { id: string }) => p.id);
+      expect(productIds).toContain(testProduct.id);
     });
 
     it('should search products by name', async () => {
@@ -101,6 +128,22 @@ describe('Product Routes', () => {
       expect(response.body.products[0].name).toContain('Test');
     });
 
+    it('should search products by description', async () => {
+      const app = createTestApp();
+
+      const response = await request(app).get('/products?q=test product');
+
+      expect(response.status).toBe(200);
+      expect(response.body.products.length).toBeGreaterThan(0);
+      // Should find products matching the search term
+      const found = response.body.products.some(
+        (p: { name: string; description: string }) =>
+          p.name.toLowerCase().includes('test') ||
+          (p.description && p.description.toLowerCase().includes('test'))
+      );
+      expect(found).toBe(true);
+    });
+
     it('should filter products by active status', async () => {
       const app = createTestApp();
 
@@ -108,8 +151,59 @@ describe('Product Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.products).toBeDefined();
+      expect(response.body.products.length).toBeGreaterThan(0);
       response.body.products.forEach((product: { active: boolean }) => {
         expect(product.active).toBe(true);
+      });
+    });
+
+    it('should filter products by inactive status', async () => {
+      const app = createTestApp();
+
+      // Create an inactive product
+      const inactiveProduct = await prisma.product.create({
+        data: {
+          name: 'Inactive Product',
+          slug: `inactive-${Date.now()}`,
+          basePrice: 50,
+          active: false,
+        },
+      });
+
+      try {
+        const response = await request(app).get('/products?active=false');
+
+        expect(response.status).toBe(200);
+        expect(response.body.products.length).toBeGreaterThan(0);
+        response.body.products.forEach((product: { active: boolean }) => {
+          expect(product.active).toBe(false);
+        });
+        // Should include the inactive product
+        const productIds = response.body.products.map((p: { id: string }) => p.id);
+        expect(productIds).toContain(inactiveProduct.id);
+      } finally {
+        // Cleanup
+        await prisma.product.delete({ where: { id: inactiveProduct.id } }).catch(() => {});
+      }
+    });
+
+    it('should combine search query and active filter', async () => {
+      const app = createTestApp();
+
+      const response = await request(app).get('/products?q=test&active=true');
+
+      expect(response.status).toBe(200);
+      expect(response.body.products).toBeDefined();
+      // All returned products should be active
+      response.body.products.forEach((product: { active: boolean }) => {
+        expect(product.active).toBe(true);
+      });
+      // All returned products should match the search
+      response.body.products.forEach((product: { name: string; description: string }) => {
+        const matchesSearch =
+          product.name.toLowerCase().includes('test') ||
+          (product.description && product.description.toLowerCase().includes('test'));
+        expect(matchesSearch).toBe(true);
       });
     });
 
@@ -121,6 +215,33 @@ describe('Product Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.pagination.page).toBe(1);
       expect(response.body.pagination.limit).toBe(5);
+      expect(response.body.products.length).toBeLessThanOrEqual(5);
+    });
+
+    it('should return empty array when search matches nothing', async () => {
+      const app = createTestApp();
+
+      const response = await request(app).get('/products?q=nonexistentproductxyz123');
+
+      expect(response.status).toBe(200);
+      expect(response.body.products).toBeDefined();
+      expect(Array.isArray(response.body.products)).toBe(true);
+      expect(response.body.products.length).toBe(0);
+      expect(response.body.pagination.total).toBe(0);
+    });
+
+    it('should handle case-insensitive search', async () => {
+      const app = createTestApp();
+
+      const response = await request(app).get('/products?q=TEST');
+
+      expect(response.status).toBe(200);
+      expect(response.body.products.length).toBeGreaterThan(0);
+      // Should find products regardless of case
+      const found = response.body.products.some((p: { name: string }) =>
+        p.name.toLowerCase().includes('test')
+      );
+      expect(found).toBe(true);
     });
   });
 
