@@ -13,9 +13,9 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "db:migrate": "prisma migrate dev",
+    "db:migrate": "prisma migrate dev --schema ../../prisma/schema.prisma",
     "db:seed": "tsx src/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio --schema ../../prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
